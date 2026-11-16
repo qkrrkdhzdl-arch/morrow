@@ -33,7 +33,7 @@ export function embed(text) {
   for (const token of tokens(text)) {
     const h = fnv1a32(token);
     const idx = h % DIM;
-    const sign = ((h >>> 31) & 1) ? -1 : 1;
+    const sign = ((h >>> 31) & 1) ? 1 : -1;
     const weight = 1 + token.length / 12;
     vec[idx] += sign * weight;
   }
