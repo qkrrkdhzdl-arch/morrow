@@ -1,9 +1,10 @@
-import { Graph } from "./db.js?v=3";
-import { embed, maxDiff } from "./embed.js?v=3";
-import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=3";
-import { renderGraph } from "./graph.js?v=3";
-import { runAgent } from "./agent.js?v=3";
+import { Graph } from "./db.js?v=4";
+import { embed, maxDiff } from "./embed.js?v=4";
+import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=4";
+import { renderGraph } from "./graph.js?v=4";
+import { runAgent } from "./agent.js?v=4";
 
+const BUILD = "2026-11-17.4";
 const $ = (id) => document.getElementById(id);
 
 let Q = {};   // cypher/queries.json, loaded at boot
@@ -698,7 +699,8 @@ async function boot() {
   try {
     const mode = await state.graph.open();
     state.mode = mode;
-    $("engineLine").textContent = `relate 1.0.2 · ${mode}`;
+    $("engineLine").textContent = `relate 1.0.2 · ${mode} · build ${BUILD}`;
+    window.__morrow = state;
     const { rows } = await state.graph.run(Q.count, null, "boot");
     const count = rows.length ? Number(rows[0].n) : 0;
     if (count === 0) {
