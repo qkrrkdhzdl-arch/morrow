@@ -1,0 +1,28 @@
+# Real output from the checked-in store, 2026-11-17.
+# relate 1.0.2
+
+$ relate -d store/morrow -c "MATCH (n) RETURN labels(n) AS label, count(*) AS n"
+| label          | n  |
+|----------------|----|
+| ["Obligation"] | 19 |
+| ["Artifact"]   | 18 |
+| ["Meta"]       | 1  |
+
+$ relate -d store/morrow -c "SHOW INDEXES YIELD name, type, state RETURN name, type, state"
+| name             | type       | state    |
+|------------------|------------|----------|
+| "index_1b9dcc97" | "LOOKUP"   | "ONLINE" |
+| "index_460996c0" | "LOOKUP"   | "ONLINE" |
+| "artifact_brief" | "VECTOR"   | "ONLINE" |
+| "artifact_id"    | "RANGE"    | "ONLINE" |
+| "artifact_text"  | "FULLTEXT" | "ONLINE" |
+| "obligation_id"  | "RANGE"    | "ONLINE" |
+
+$ relate -d store/morrow -c "MATCH (o:Obligation)-[n:NEEDS]->(a:Artifact) WHERE o.status = 'open' AND a.status <> 'ready' WITH a, collect(DISTINCT o.title) AS deadlines WHERE size(deadlines) >= 2 RETURN a.title AS artifact, a.minutes_left AS minutes, size(deadlines) AS claims ORDER BY claims DESC, minutes DESC"
+| artifact                     | minutes | claims |
+|------------------------------|---------|--------|
+| "Pitch deck v4"              | 90      | 3      |
+| "Product photos, six angles" | 60      | 3      |
+| "Review photo set"           | 45      | 3      |
+| "Receipts and tax records"   | 40      | 2      |
+| "Bank account certificate"   | 20      | 2      |
