@@ -37,7 +37,7 @@
   <div class="controls">
     <label class="ctl">
       <span>Capacity</span>
-      <input id="capacity" type="number" min="30" max="960" step="15" value="240" inputmode="numeric">
+      <input id="capacity" type="number" min="30" max="960" step="15" value="180" inputmode="numeric">
       <span class="unit">min/day</span>
     </label>
     <label class="ctl">
@@ -84,10 +84,11 @@
   <section class="panel timeline-panel">
     <div class="panel-head">
       <h2>Deadlines, day by day</h2>
-      <p class="hint">Bars show work assigned to each day, latest-first. Red means the day is over capacity.</p>
+      <p class="hint">Each bar runs from today to the day that deadline closes, so deadlines that collide end at the same point. Red means the deadline cannot be met at this capacity.</p>
     </div>
     <div id="timeline" class="timeline"></div>
     <div id="dayload" class="dayload" aria-hidden="true"></div>
+    <p class="hint" id="dayloadHint">Daily demand if each deadline's work is spread evenly over the days it has left. A red day carries more than the capacity, which is where a week stops being a scheduling problem and becomes a scope problem.</p>
   </section>
 
   <section class="panel splitleverage">
@@ -139,7 +140,9 @@
 
   <section class="panel log-panel">
     <details id="logDetails">
-      <summary>Cypher log <span id="logCount" class="pill">0</span></summary>
+      <summary>Cypher log <span id="logCount" class="pill">0</span>
+        <label class="tiny" style="margin-left:10px"><input type="checkbox" id="logSeed"> include the seed writes</label>
+      </summary>
       <div id="log" class="log"></div>
     </details>
   </section>
@@ -150,6 +153,6 @@
   <span id="engineLine"></span></p>
 </footer>
 
-<script type="module" src="assets/app.js?v=4"></script>
+<script type="module" src="assets/app.js?v=5"></script>
 </body>
 </html>
