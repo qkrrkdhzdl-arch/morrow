@@ -1,8 +1,8 @@
-import { Graph } from "./db.js?v=8";
-import { embed, maxDiff } from "./embed.js?v=8";
-import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=8";
-import { renderGraph } from "./graph.js?v=8";
-import { runAgent } from "./agent.js?v=8";
+import { Graph } from "./db.js?v=9";
+import { embed, maxDiff } from "./embed.js?v=9";
+import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=9";
+import { renderGraph } from "./graph.js?v=9";
+import { runAgent } from "./agent.js?v=9";
 
 const BUILD = "2026-11-17.4";
 const $ = (id) => document.getElementById(id);
