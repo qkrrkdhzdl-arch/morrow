@@ -1,0 +1,31 @@
+{
+ "_comment": "Every statement Morrow sends to Relate. The app fetches this file at boot and shows the matching text in its inspector and Cypher log; scripts/verify_queries.py runs the same file against store/morrow with the Relate CLI, so a statement that works in the app and one that works in the CLI cannot drift apart.",
+ "read": {
+  "obligations": "MATCH (o:Obligation)\nRETURN o.id AS id, o.title AS title, o.due AS due, o.minutes AS minutes,\n       o.channel AS channel, o.stake AS stake, o.brief AS brief, o.status AS status\nORDER BY o.due",
+  "artifacts": "MATCH (a:Artifact)\nRETURN a.id AS id, a.title AS title, a.kind AS kind, a.status AS status,\n       a.minutes_left AS minutes_left, a.text AS text",
+  "needs": "MATCH (o:Obligation)-[n:NEEDS]->(a:Artifact)\nRETURN o.id AS obligation, a.id AS artifact, n.weight AS weight",
+  "depends": "MATCH (a:Artifact)-[:DEPENDS_ON]->(b:Artifact)\nRETURN a.id AS artifact, b.id AS on",
+  "leverage": "MATCH (o:Obligation)-[n:NEEDS]->(a:Artifact)\nWHERE o.status = 'open' AND a.status <> 'ready'\nWITH a, collect(DISTINCT o.title) AS deadlines\nWHERE size(deadlines) >= 2\nRETURN a.id AS id, a.title AS artifact, a.minutes_left AS minutes, a.status AS status,\n       size(deadlines) AS claims, deadlines\nORDER BY claims DESC, minutes DESC",
+  "collisions": "MATCH (o:Obligation)\nWHERE o.status = 'open'\nWITH o.due AS day, collect(o.title) AS titles\nWHERE size(titles) >= 2\nRETURN day, size(titles) AS n, titles\nORDER BY day",
+  "artifactClaims": "MATCH (a:Artifact {id: $id})<-[n:NEEDS]-(o:Obligation)\nRETURN o.title AS deadline, o.due AS due, o.status AS status, n.weight AS share\nORDER BY due",
+  "artifactRipple": "MATCH (a:Artifact {id: $id})<-[:NEEDS]-(o:Obligation)-[:NEEDS]->(sib:Artifact)\nWHERE sib.id <> $id\nRETURN o.title AS deadline, collect(DISTINCT sib.title) AS also_needed\nORDER BY deadline",
+  "artifactDeps": "MATCH (a:Artifact {id: $id})-[:DEPENDS_ON*1..3]->(d:Artifact)\nRETURN d.title AS needs_first, d.status AS status",
+  "artifactDownstream": "MATCH (a:Artifact)-[:DEPENDS_ON*1..3]->(b:Artifact {id: $id})\nRETURN a.title AS feeds, a.status AS status",
+  "obligationNeeds": "MATCH (o:Obligation {id: $id})-[n:NEEDS]->(a:Artifact)\nRETURN a.title AS artifact, a.status AS status, a.minutes_left AS minutes_left, n.weight AS share\nORDER BY minutes_left DESC",
+  "obligationShared": "MATCH (o:Obligation {id: $id})-[:NEEDS]->(a:Artifact)<-[:NEEDS]-(other:Obligation)\nWHERE other.id <> $id\nRETURN a.title AS artifact, collect(DISTINCT other.title) AS also_claimed_by",
+  "similar": "MATCH (a:Artifact)\nSEARCH a IN (VECTOR INDEX artifact_brief FOR $vec LIMIT $k) SCORE AS score\nMATCH (o:Obligation)-[:NEEDS]->(a)\nWHERE o.status = 'open'\nRETURN a.id AS id, a.title AS artifact, round(score, 3) AS score,\n       a.status AS status, a.minutes_left AS minutes_left,\n       collect(DISTINCT o.id) AS deadline_ids, collect(DISTINCT o.title) AS deadlines\nORDER BY score DESC",
+  "unblocks": "MATCH (a:Artifact {id: $id})<-[:NEEDS]-(o:Obligation)-[:NEEDS]->(sib:Artifact)\nWHERE o.status = 'open' AND sib.id <> $id\nRETURN a.title AS artifact, o.title AS deadline, o.due AS due,\n       collect(DISTINCT sib.title) AS still_needed\nORDER BY due",
+  "meta": "MATCH (m:Meta {id: 'meta'}) RETURN m.seeded_on AS day",
+  "count": "MATCH (n) RETURN count(n) AS n"
+ },
+ "write": {
+  "markReady": "MATCH (a:Artifact {id: $id}) SET a.status = 'ready', a.minutes_left = 0 RETURN a.title AS title",
+  "addDeadline": "CREATE (:Obligation {id: $id, title: $title, due: $due, minutes: $minutes, status: 'open', channel: $channel, stake: '', brief: $brief})",
+  "addNeed": "MATCH (o:Obligation {id: $id}), (a:Artifact {id: $artifact}) CREATE (o)-[:NEEDS {weight: $weight}]->(a)",
+  "addDependency": "MATCH (a:Artifact {id: $artifact}), (b:Artifact {id: $on}) CREATE (a)-[:DEPENDS_ON]->(b)",
+  "addArtifact": "CREATE (:Artifact {id: $id, title: $title, kind: $kind, status: $status, minutes_left: $minutes_left, text: $text, vec: $vec})",
+  "addObligationSeed": "CREATE (:Obligation {id: $id, title: $title, due: $due, minutes: $minutes, status: 'open', channel: $channel, stake: $stake, brief: $brief})",
+  "addMeta": "CREATE (:Meta {id: 'meta', seeded_on: $today, sample: true})",
+  "wipe": "MATCH (n) DETACH DELETE n"
+ }
+}
