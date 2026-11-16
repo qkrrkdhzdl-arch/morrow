@@ -4,7 +4,13 @@
 
 Open the app: **https://qkrrkdhzdl-arch.github.io/morrow/** — it runs in the tab, with no account, no server and no key.
 
+**Demo video (62s, no narration, real screenshots):** [docs/morrow-demo.mp4](docs/morrow-demo.mp4) · [watch on GitHub](https://github.com/qkrrkdhzdl-arch/morrow/blob/main/docs/morrow-demo.mp4) · **Try it:** https://qkrrkdhzdl-arch.github.io/morrow/
+
 ![Morrow in the browser](docs/screenshot-main.png)
+
+What the sample shows on the day it was built: 12 open deadlines inside 14 days, **29h 16m** of work against **35h** of capacity, two deadlines that cannot be met (one by 8 minutes, one by 1h 23m), four days where deadlines collide, and **five artifacts** that two or three deadlines each claim — including a 20-minute bank certificate that sits under two separate payments.
+
+![The graph, with one artifact traced](docs/screenshot-graph.png)
 
 ---
 
@@ -70,6 +76,8 @@ To inspect the same graph without a browser:
 relate -d store/morrow -c "MATCH (n) RETURN labels(n), count(*)"
 relate -d store/morrow -c "MATCH (o:Obligation)-[:NEEDS]->(a:Artifact) RETURN o.title, a.title LIMIT 5"
 ```
+
+`docs/CLI.txt` is the real output of those commands against this store, indexes included.
 
 To rebuild the store from the generator, and to check that every statement the app runs also runs in the CLI:
 
