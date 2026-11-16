@@ -3,7 +3,7 @@
 // in a dedicated worker, not on the page thread.
 
 import init, { RelateDb } from "./vendor/relate/relate.js";
-import { parseEnvelope } from "./db.js?v=3";
+import { parseEnvelope } from "./db.js?v=4";
 
 let db = null;
 let mode = "unopened";
