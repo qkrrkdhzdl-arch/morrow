@@ -1,8 +1,8 @@
-import { Graph } from "./db.js?v=5";
-import { embed, maxDiff } from "./embed.js?v=5";
-import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=5";
-import { renderGraph } from "./graph.js?v=5";
-import { runAgent } from "./agent.js?v=5";
+import { Graph } from "./db.js?v=6";
+import { embed, maxDiff } from "./embed.js?v=6";
+import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=6";
+import { renderGraph } from "./graph.js?v=6";
+import { runAgent } from "./agent.js?v=6";
 
 const BUILD = "2026-11-17.4";
 const $ = (id) => document.getElementById(id);
@@ -97,7 +97,7 @@ async function loadModel() {
 }
 
 function capacity() {
-  return Math.max(15, Number($("capacity").value) || 240);
+  return Math.max(15, Number($("capacity").value) || 150);
 }
 
 function horizonDays() {
