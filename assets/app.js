@@ -1,8 +1,8 @@
-import { Graph } from "./db.js?v=4";
-import { embed, maxDiff } from "./embed.js?v=4";
-import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=4";
-import { renderGraph } from "./graph.js?v=4";
-import { runAgent } from "./agent.js?v=4";
+import { Graph } from "./db.js?v=5";
+import { embed, maxDiff } from "./embed.js?v=5";
+import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=5";
+import { renderGraph } from "./graph.js?v=5";
+import { runAgent } from "./agent.js?v=5";
 
 const BUILD = "2026-11-17.4";
 const $ = (id) => document.getElementById(id);
@@ -55,7 +55,9 @@ function pushLog(entry) {
 
 function renderLogTail() {
   const box = $("log");
-  const recent = state.logs.slice(-120).reverse();
+  const withSeed = $("logSeed") && $("logSeed").checked;
+  const shown = withSeed ? state.logs : state.logs.filter((entry) => entry.source !== "seed");
+  const recent = shown.slice(-120).reverse();
   box.innerHTML = "";
   for (const entry of recent) {
     const line = document.createElement("div");
@@ -65,7 +67,7 @@ function renderLogTail() {
     }</span><span class="ms">${entry.ms ? `${Math.round(entry.ms)} ms` : "—"}</span>`;
     box.append(line);
   }
-  $("logCount").textContent = String(state.logs.length);
+  $("logCount").textContent = String(shown.length);
 }
 
 function escapeHtml(text) {
@@ -143,22 +145,24 @@ function setStat(id, value, sub, cls = "") {
 function renderTimeline() {
   const box = $("timeline");
   box.innerHTML = "";
-  const maxUnit = Math.max(60, ...state.plan.ordered.map((i) => i.unit));
+  const span = state.plan.horizonDays;
   for (const item of state.plan.ordered) {
     const v = verdictOf(item);
     const row = document.createElement("div");
     row.className = `row${state.selected === item.ob.id ? " sel" : ""}`;
     row.dataset.id = item.ob.id;
-    const ratio = Math.max(0.02, Math.min(1, item.demandPerDay / Math.max(1, state.plan.capacity)));
-    const fillCls = v.cls === "over" ? "over" : v.cls === "warn" ? "warn" : "";
+    // A Gantt strip: the bar runs from today to the day the portal closes, so the
+    // clusters (three deadlines on one day) are visible as bars of equal length.
+    const end = item.late ? 0 : Math.min(100, ((item.daysLeft + 1) / span) * 100);
+    const ratio = item.demandPerDay / Math.max(1, state.plan.capacity);
+    const fillCls = !item.feasible ? "over" : ratio > 0.85 ? "warn" : "";
     row.innerHTML = `
       <div class="name">
         <b>${escapeHtml(item.ob.title)}</b>
         <span>${escapeHtml(item.ob.due)} · ${escapeHtml(item.ob.channel)}</span>
       </div>
-      <div class="track" title="${item.demandPerDay} min/day against ${state.plan.capacity} min/day">
-        <span class="fill ${fillCls}" style="left:0;width:${(ratio * 100).toFixed(1)}%"></span>
-        <span class="cap" style="left:${Math.min(100, (1 / Math.max(1, maxUnit / state.plan.capacity)) * 100)}%"></span>
+      <div class="track" title="${item.demandPerDay} min/day against a capacity of ${state.plan.capacity} min/day">
+        <span class="fill ${fillCls}" style="width:${end.toFixed(1)}%"></span>
       </div>
       <div class="days">${item.daysLeft < 0 ? `${-item.daysLeft}d late` : item.daysLeft === 0 ? "today" : `${item.daysLeft}d`}</div>
       <div class="scale"><span class="${v.cls}">${escapeHtml(v.label)}</span><br><span style="color:var(--ink-3)">${fmtMinutes(item.unit)}</span></div>`;
@@ -619,6 +623,7 @@ async function refresh() {
 
 function bind() {
   $("capacity").addEventListener("change", recompute);
+  $("logSeed").addEventListener("change", renderLogTail);
   $("horizon").addEventListener("change", recompute);
   $("reseed").addEventListener("click", async () => {
     if (!confirm("Delete the stored graph and load the sample again?")) return;
