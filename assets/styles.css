@@ -168,9 +168,6 @@ main {
 .track .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, #cfe3d9, #9cc4b2); }
 .track .fill.warn { background: linear-gradient(90deg, #f2dcb8, #e0b884); }
 .track .fill.over { background: linear-gradient(90deg, #f3c7bb, #dc9d8b); }
-.track .fill.warn { background: var(--warn); }
-.track .fill.over { background: var(--risk); }
-.track .cap { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--ink-3); opacity: .45; }
 .row .days { font-family: var(--mono); font-size: 12.5px; text-align: right; }
 .row .scale { font-family: var(--mono); font-size: 12.5px; text-align: right; }
 .row .scale .bad { color: var(--risk); }
