@@ -1,8 +1,8 @@
-import { Graph } from "./db.js";
-import { embed, maxDiff } from "./embed.js";
-import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js";
-import { renderGraph } from "./graph.js";
-import { runAgent } from "./agent.js";
+import { Graph } from "./db.js?v=3";
+import { embed, maxDiff } from "./embed.js?v=3";
+import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=3";
+import { renderGraph } from "./graph.js?v=3";
+import { runAgent } from "./agent.js?v=3";
 
 const $ = (id) => document.getElementById(id);
 
