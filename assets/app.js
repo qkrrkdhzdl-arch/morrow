@@ -1,8 +1,8 @@
-import { Graph } from "./db.js?v=6";
-import { embed, maxDiff } from "./embed.js?v=6";
-import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=6";
-import { renderGraph } from "./graph.js?v=6";
-import { runAgent } from "./agent.js?v=6";
+import { Graph } from "./db.js?v=8";
+import { embed, maxDiff } from "./embed.js?v=8";
+import { buildPlan, todayISO, addDays, daysBetween, shortDay, verdictOf, fmtMinutes } from "./planner.js?v=8";
+import { renderGraph } from "./graph.js?v=8";
+import { runAgent } from "./agent.js?v=8";
 
 const BUILD = "2026-11-17.4";
 const $ = (id) => document.getElementById(id);
@@ -705,7 +705,8 @@ async function boot() {
     const mode = await state.graph.open();
     state.mode = mode;
     $("engineLine").textContent = `relate 1.0.2 · ${mode} · build ${BUILD}`;
-    window.__morrow = state;
+    // Read-only handle for the browser console (and for the demo recording).
+    window.__morrow = { state, callTool, Q };
     const { rows } = await state.graph.run(Q.count, null, "boot");
     const count = rows.length ? Number(rows[0].n) : 0;
     if (count === 0) {
